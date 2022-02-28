@@ -1,7 +1,8 @@
 $(function() {
     console.log("Script Loaded");
+    $("#btnUpdate").hide();
     loadapis();
-    $("#btnAdd").click(addPersons())
+    $("#btnAdd").click(addPersons)
     $("#myTable").on("click", ".dlt_btn", deletePerson);
     $("#myTable").on("click", ".upd_btn", updatePerson);
     $("#btnUpdate").click(sendAjaxUpdate);
@@ -11,9 +12,11 @@ $(function() {
 function sendAjaxUpdate() {
     console.log("Send Ajax called");
     var name = $("#addName").val();
-    var gender = $("#addGender").val();
+    var gender = $("#addGender").is("Checked");
     var age = $("#addAge").val();
+    var id = $("#hiddenid").html();
     var city = $("#addCity").val();
+
 
     $.ajax({
         url: "https://haseeb-apis.herokuapp.com/api/person/" + id,
@@ -34,20 +37,21 @@ function sendAjaxUpdate() {
 
 function updatePerson() {
     console.log("Update Called");
+    $("#btnAdd").hide();
     var btn = $(this);
     var id = btn.attr("data-id");
 
     $.ajax({
         url: "https://haseeb-apis.herokuapp.com/api/person/" + id,
         method: "GET",
-        success: function(response) {
-            console.log(response);
-            $("#addName").val(response.name);
-            $("#addAge").val(response.age);
-            $("#addGender").val(response.gender);
-            $("#addCity").val(response.city);
-            $("#hiddenid").append(response._id);
-            $("#updatebtn").show();
+        success: function(person) {
+            console.log(person);
+            $("#addName").val(person.name);
+            $("#addAge").val(person.age);
+            $("#addGender").is(":ckecked");
+            $("#addCity").val(person.city);
+            $("#hiddenid").append(person._id);
+            $("#btnUpdate").show();
         },
     });
 }
@@ -56,14 +60,14 @@ function updatePerson() {
 
 function deletePerson() {
     console.log("Delete Called");
-    var btn = $("this");
+    var btn = $(this);
     var id = btn.attr("data-id");
 
     $.ajax({
         url: "https://haseeb-apis.herokuapp.com/api/person/" + id,
         method: "DELETE",
-        success: loadapis,
-        console: function() {
+        success: loadapis(),
+        error: function() {
             console.log("Error on Server...");
         }
     })
@@ -74,7 +78,15 @@ function deletePerson() {
 function addPersons() {
     console.log("addPersons called");
     var name = $("#addName").val();
-    var gender = $("#addGender").val();
+    var gender = $("#male").is(":checked");
+    console.log(gender);
+
+    var boolGender;
+    if (gender == "Male") {
+        boolGender == true;
+    } else {
+        boolGender == false;
+    }
     var age = $("#addAge").val();
     var city = $("#addCity").val();
 
@@ -84,9 +96,9 @@ function addPersons() {
         data: { name, gender, age, city },
         success: function() {
             $("#addName").val("");
-            $("#addGender").val("");
             $("#addAge").val("");
             $("#addCity").val("");
+            $("#addGender").is("");
             loadapis();
         }
     })
@@ -105,7 +117,7 @@ function loadapis() {
 
 function getPerson(person) {
     for (var i = 0; i < person.length; i++) {
-        $("#myTable").append(`<tr><td>${person[i].name}</td><td>${person[i].gender}</td><td>${person[i].age}</td><td>${person[i].city}</td><td><button class ="btn btn-danger"  data-id="${person[i]._id}">Remove</button><button class ="btn btn-warning" data-id="${person[i]._id}">Update</button></td></tr>
+        $("#myTable").append(`<tr><td>${person[i].name}</td><td>${person[i].gender}</td><td>${person[i].age}</td><td>${person[i].city}</td><td><b class ="dlt_btn bg-danger text-white rounded"  data-id ="${person[i]._id}">Remove </b><b class ="upd_btn bg-warning text-white rounded" data-id="${person[i]._id}"> Edite</b></td></tr>
 `)
     }
 
